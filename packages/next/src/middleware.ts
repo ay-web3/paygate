@@ -54,7 +54,29 @@ export function withPaygate(handler: any, configOverrides?: Partial<PaygateConfi
         timestamp: Date.now()
       }).catch(console.error);
     }
-    
-    return wrapped(req, ...args);
+    const response = await wrapped(req, ...args);
+
+    // @ts-ignore
+    if (config.injectReceipt && req.payment && req.payment.verified && response instanceof NextResponse) {
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          const body = await response.clone().json();
+          if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
+            // @ts-ignore
+            body._paygateReceipt = req.payment;
+            return NextResponse.json(body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: response.headers
+            });
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    return response;
   };
 }

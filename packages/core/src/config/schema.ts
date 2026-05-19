@@ -64,7 +64,8 @@ export const PaygateConfigSchema = z.object({
   seller: SellerSchema,
   routes: z.record(z.string(), RouteSchema),
   dashboard: DashboardSchema.default({}),
-  analytics: AnalyticsSchema.default({})
+  analytics: AnalyticsSchema.default({}),
+  injectReceipt: z.boolean().default(true)
 });
 
 export type PaygateConfigInput = z.input<typeof PaygateConfigSchema>;

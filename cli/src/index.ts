@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { initCommand } from './commands/init';
+import { registerPublishCommand } from './commands/publish';
 
 const program = new Command();
 
@@ -15,6 +16,6 @@ program
   .description('Interactive setup wizard to initialize PayGate in your project')
   .action(initCommand);
 
-// We'll add dev, test, and status later
+registerPublishCommand(program);
 
 program.parse();
