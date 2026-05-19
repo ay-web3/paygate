@@ -58,6 +58,7 @@ pricing:
     # Exact match route
     "/api/premium-data":
       price: 0.05
+      description: "Generates high-accuracy crypto trading signals for BTC and ETH."
     
     # Wildcard route for dynamic endpoints
     "/api/models/*":
@@ -110,6 +111,36 @@ async function handler(req: Request) {
 export const GET = withPaygate(handler);
 export const POST = withPaygate(handler);
 ```
+
+---
+
+## ⚡️ Advanced Features
+
+### 1. Automatic Receipt Injection
+AI agents need to log their receipts to audit their spend. Instead of you manually returning receipt data, PayGate automatically injects a `_paygateReceipt` metadata object into all JSON API responses upon successful payment verification.
+
+#### Express & Next.js Output:
+```json
+{
+  "data": "This is premium intelligence data.",
+  "_paygateReceipt": {
+    "payer": "0xAgentWalletAddress...",
+    "amount": "1000", 
+    "network": "arc-testnet",
+    "transaction": "0xTxHash..."
+  }
+}
+```
+*Note: You can easily disable this in your `paygate.config.yaml` by setting `injectReceipt: false`.*
+
+### 2. Marketplace Publisher CLI
+List your API directly on the official **Circle Agent Marketplace**! PayGate helps you auto-generate standard OpenAPI 3.0 documentation with built-in `x402-payment` security specs.
+
+#### Run the publish command:
+```bash
+npx @emmanue5002k/paygate-cli publish
+```
+This generates a production-ready `openapi.json` file in your root folder. Submit this file to [agents.circle.com/services](https://agents.circle.com/services) to list your new API storefront!
 
 ---
 
