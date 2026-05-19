@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayGate — Revenue Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="100%" stop-color="#8b5cf6" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <h1>PayGate</h1>
+            </div>
+            <div class="status-indicator">
+                <span class="dot live"></span> Live Analytics
+            </div>
+        </header>
+
+        <main>
+            <div class="stats-grid">
+                <div class="glass-card stat-card">
+                    <h3>Total Revenue</h3>
+                    <div class="stat-value highlight" id="total-revenue">$0.00</div>
+                    <p class="stat-label">USDC Earned</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Total Calls</h3>
+                    <div class="stat-value" id="total-calls">0</div>
+                    <p class="stat-label">Paid Requests Served</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Unique Payers</h3>
+                    <div class="stat-value" id="unique-payers">0</div>
+                    <p class="stat-label">Distinct Wallet Addresses</p>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="glass-card chart-container">
+                    <div class="card-header">
+                        <h2>Revenue Overview</h2>
+                        <select class="glass-select">
+                            <option>Last 24 Hours</option>
+                            <option>Last 7 Days</option>
+                            <option>Last 30 Days</option>
+                        </select>
+                    </div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bottom-grid">
+                <div class="glass-card table-container">
+                    <div class="card-header">
+                        <h2>Top Endpoints</h2>
+                    </div>
+                    <table class="glass-table">
+                        <thead>
+                            <tr>
+                                <th>Route</th>
+                                <th>Calls</th>
+                                <th>Revenue (USDC)</th>
+                                <th>Unique Payers</th>
+                            </tr>
+                        </thead>
+                        <tbody id="endpoints-body">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="glass-card feed-container">
+                    <div class="card-header">
+                        <h2>Recent Transactions</h2>
+                    </div>
+                    <div class="transaction-feed" id="tx-feed">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

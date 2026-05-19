@@ -1,0 +1,19 @@
+seller:
+  wallet: "0x1234567890abcdef1234567890abcdef12345678"
+  networks:
+    - base-sepolia
+    - arc-testnet
+  facilitator: testnet
+
+routes:
+  "GET /weather":
+    price: "$0.001"
+    description: "Get real-time weather data"
+
+  "GET /forecast":
+    price: "$0.005"
+    description: "Get 7-day forecast"
+
+dashboard:
+  enabled: true
+  port: 3001

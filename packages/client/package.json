@@ -1,0 +1,35 @@
+{
+  "name": "@emmanue5002k/paygate-client",
+  "version": "0.1.0",
+  "description": "Buyer-side helper for consuming PayGate x402 APIs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "lint": "eslint src/ --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emmanue5002k/paygate-core": "*",
+    "@x402/fetch": "latest",
+    "@x402/core": "latest",
+    "@x402/evm": "latest",
+    "@x402/svm": "latest"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
