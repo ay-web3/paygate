@@ -158,28 +158,7 @@ This will instantly spin up a local UI on `http://localhost:3001` showing your t
 
 ---
 
-## 🤖 The Client SDK (For Agents)
 
-If you are building an AI Agent that needs to *consume* a PayGate-protected API, use our Client SDK to easily automate the x402 handshake:
-
-```bash
-npm install @emmanue5002k/paygate-client
-```
-
-```typescript
-import { PaygateClient } from '@emmanue5002k/paygate-client';
-
-const client = new PaygateClient({
-  agentWalletPrivateKey: process.env.PRIVATE_KEY
-});
-
-// The client automatically detects the 402, signs the transaction, 
-// pays the fee from the agent's Gateway balance, and returns the data.
-const response = await client.fetch('http://api.example.com/premium-data');
-const data = await response.json();
-```
-
----
 
 ## License
 
