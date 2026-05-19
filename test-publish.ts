@@ -13,30 +13,31 @@ function parseSimpleYaml(filePath: string): any {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
 
-    // Check for sections
-    if (trimmed.startsWith('routes:')) {
-      inRoutesSection = true;
-      continue;
-    } else if (trimmed.endsWith(':') && !trimmed.startsWith(' ') && !trimmed.startsWith('\t')) {
-      inRoutesSection = false;
+    // Check for sections at root level (no indentation)
+    if (!line.startsWith(' ') && !line.startsWith('\t')) {
+      if (trimmed.startsWith('routes:')) {
+        inRoutesSection = true;
+      } else {
+        inRoutesSection = false;
+      }
       continue;
     }
 
     if (inRoutesSection) {
-      // Check for route definition
-      const routeMatch = line.match(/^(\s{2}|\t)"?([^"]+)"?:/);
+      // Check for route definition (exactly 2 spaces indentation)
+      const routeMatch = line.match(/^(\s{2}|\t)[^\s\t]"?([^":]+)"?:?/);
       if (routeMatch) {
-        currentRoute = routeMatch[2];
+        currentRoute = routeMatch[2].trim();
         result.routes[currentRoute] = {};
         continue;
       }
 
-      // Check for properties inside route
+      // Check for properties inside route (exactly 4 spaces indentation)
       if (currentRoute) {
-        const propMatch = line.match(/^\s{4}(price|description):\s*["']?([^"']+)["']?/);
+        const propMatch = line.match(/^(\s{4}|\t{2})(price|description):\s*["']?([^"']+)["']?/);
         if (propMatch) {
-          const key = propMatch[1];
-          const val = propMatch[2];
+          const key = propMatch[2];
+          const val = propMatch[3];
           result.routes[currentRoute][key] = val;
         }
       }

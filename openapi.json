@@ -1,0 +1,64 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Agent Services API",
+    "version": "1.0.0",
+    "description": "API monetized via PayGate x402 nanopayments."
+  },
+  "servers": [
+    {
+      "url": "https://your-domain.com",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "GET /weather": {
+      "get": {
+        "summary": "Access GET /weather",
+        "description": "Get real-time weather data \n\n**Price:** $0.001 USDC",
+        "security": [
+          {
+            "x402-payment": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "402": {
+            "description": "Payment Required - Trigger x402 payment flow"
+          }
+        }
+      }
+    },
+    "GET /forecast": {
+      "get": {
+        "summary": "Access GET /forecast",
+        "description": "Get 7-day forecast \n\n**Price:** $0.005 USDC",
+        "security": [
+          {
+            "x402-payment": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "402": {
+            "description": "Payment Required - Trigger x402 payment flow"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "x402-payment": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Circle Gateway x402 payment authorization"
+      }
+    }
+  }
+}
