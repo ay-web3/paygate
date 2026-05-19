@@ -31,6 +31,9 @@ npm install @emmanue5002k/paygate-core @emmanue5002k/paygate-express
 npm install @emmanue5002k/paygate-core @emmanue5002k/paygate-next
 ```
 
+> [!NOTE]
+> **Next.js 14/15 Compatibility:** If you are installing `@emmanue5002k/paygate-next` on Next.js 14 or 15, run the install command with `npm install --legacy-peer-deps` to bypass strict peer dependency conflicts from the core Circle x402 library.
+
 You can also install the global CLI to access the Analytics Dashboard:
 
 ```bash
