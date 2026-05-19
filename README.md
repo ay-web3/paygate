@@ -1,47 +1,155 @@
-# PayGate
+# PayGate ⚡️
 
-PayGate is the "Stripe for x402" — a developer toolkit that dramatically simplifies setting up x402 paid APIs. Instead of manually wiring packages and managing configurations, you define your monetization rules in a single config file.
+**The "Stripe Checkout" for the Agent Economy.** 
 
-## Why PayGate?
+Turn any existing API into a storefront for AI Agents in seconds. PayGate provides zero-code Circle Gateway integration to accept gasless USDC nanopayments via x402, automatically issue `402 Payment Required` responses, and track your revenue in real-time.
 
-The x402 protocol allows AI agents and humans to pay for API usage seamlessly using USDC. However, setting it up manually requires writing 40-60 lines of boilerplate, registering chains, and managing facilitator configurations.
+---
 
-PayGate turns that into:
+## 🌟 Why PayGate?
+
+Currently, monetizing an API for AI agents requires manually building x402 payment handlers, formatting viem units, managing Circle Gateway endpoints, and tracking manual balances in the CLI.
+
+**PayGate abstracts all of this into a single middleware and a YAML config file.**
+
+- **Zero-Code Billing**: Set prices and routes in a simple `paygate.yaml` file instead of writing billing logic.
+- **Framework Agnostic**: Drop-in adapters for both **Express.js** and **Next.js**.
+- **Instant Monetization**: Sub-cent USDC payments powered by Circle Gateway.
+- **Built-in Analytics**: Run one CLI command to spin up a local dashboard to track your live revenue.
+
+---
+
+## 📦 Installation
+
+Install the core package and the adapter for your framework of choice:
+
+```bash
+# For Express.js
+npm install @emmanue5002k/paygate-core @emmanue5002k/paygate-express
+
+# For Next.js (App Router)
+npm install @emmanue5002k/paygate-core @emmanue5002k/paygate-next
+```
+
+You can also install the global CLI to access the Analytics Dashboard:
+
+```bash
+npm install -g @emmanue5002k/paygate-cli
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. The Configuration File
+Create a `paygate.config.yaml` at the root of your project. This is where you declare which routes cost money and how much they cost.
 
 ```yaml
-# paygate.config.yaml
-seller:
-  wallet: "0xYourWalletAddress"
-  networks: ["base-sepolia"]
+version: "1.0"
+environment: "testnet" # or "mainnet"
 
-routes:
-  "GET /weather":
-    price: "$0.001"
+seller:
+  walletAddress: "0xYourSellerWalletAddressHere"
+  facilitatorUrl: "https://gateway-api-testnet.circle.com"
+
+pricing:
+  defaultCurrency: "USDC"
+  routes:
+    # Exact match route
+    "/api/premium-data":
+      price: 0.05
+    
+    # Wildcard route for dynamic endpoints
+    "/api/models/*":
+      price: 0.01
+```
+
+### 2. Express.js Integration
+
+Simply drop the PayGate middleware into your Express app. Any route defined in your YAML file will automatically be locked behind an x402 USDC paywall!
+
+```typescript
+import express from 'express';
+import { paygate } from '@emmanue5002k/paygate-express';
+
+const app = express();
+
+// 1. Apply the middleware globally
+app.use(paygate());
+
+// 2. Write your route normally!
+// If an agent hasn't paid, they receive a 402 Payment Required.
+// If they have paid, this code executes!
+app.get('/api/premium-data', (req, res) => {
+  res.json({
+    data: "This is premium intelligence data.",
+    paid: req.paygate // Contains transaction details (amount, payer, network)
+  });
+});
+
+app.listen(3000, () => console.log('Agent Storefront listening on port 3000'));
+```
+
+### 3. Next.js Integration
+
+Wrap your Route Handlers in Next.js using the `withPaygate` adapter:
+
+```typescript
+// app/api/premium-data/route.ts
+import { NextResponse } from 'next/server';
+import { withPaygate } from '@emmanue5002k/paygate-next';
+
+async function handler(req: Request) {
+  // This only runs if the agent has successfully paid!
+  return NextResponse.json({ 
+    data: "Exclusive research report.",
+  });
+}
+
+// Wrap the standard handler with PayGate
+export const GET = withPaygate(handler);
+export const POST = withPaygate(handler);
+```
+
+---
+
+## 📊 Analytics Dashboard
+
+Stop running CLI commands to guess if you made money. PayGate comes with a beautiful, real-time analytics dashboard to track your API revenue.
+
+Run this command in the directory containing your `paygate.config.yaml`:
+
+```bash
+npx @emmanue5002k/paygate-cli dashboard
+```
+
+This will instantly spin up a local UI on `http://localhost:3001` showing your total USDC revenue, top-performing endpoints, and a live ledger of agent transactions.
+
+---
+
+## 🤖 The Client SDK (For Agents)
+
+If you are building an AI Agent that needs to *consume* a PayGate-protected API, use our Client SDK to easily automate the x402 handshake:
+
+```bash
+npm install @emmanue5002k/paygate-client
 ```
 
 ```typescript
-// server.ts
-import express from "express";
-import { paygate } from "@emmanue5002k/paygate-express";
+import { PaygateClient } from '@emmanue5002k/paygate-client';
 
-const app = express();
-app.use(paygate()); 
-
-app.get("/weather", (req, res) => {
-  res.json({ weather: "sunny" });
+const client = new PaygateClient({
+  agentWalletPrivateKey: process.env.PRIVATE_KEY
 });
 
-app.listen(3000);
+// The client automatically detects the 402, signs the transaction, 
+// pays the fee from the agent's Gateway balance, and returns the data.
+const response = await client.fetch('http://api.example.com/premium-data');
+const data = await response.json();
 ```
 
-## Features
+---
 
-- **Config-driven setup**: Define your paid routes and prices in `paygate.config.yaml`.
-- **Smart Pricing**: Support for flat fees, tiered pricing, burst/surge pricing, and freemium quotas.
-- **Framework adapters**: Drop-in middleware for Express, Next.js, and more.
-- **Dashboard**: Real-time revenue analytics and transaction monitoring.
-- **CLI scaffolding**: `npx @emmanue5002k/paygate-cli init` to set up your project instantly.
+## License
 
-## Getting Started
-
-*(Documentation coming soon)*
+MIT © Emmanuel
