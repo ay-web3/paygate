@@ -1,0 +1,118 @@
+import fs from 'fs';
+import path from 'path';
+
+function parseSimpleYaml(filePath: string): any {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const lines = content.split(/\r?\n/);
+  const result: any = { routes: {} };
+  
+  let currentRoute: string | null = null;
+  let inRoutesSection = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    // Check for sections
+    if (trimmed.startsWith('routes:')) {
+      inRoutesSection = true;
+      continue;
+    } else if (trimmed.endsWith(':') && !trimmed.startsWith(' ') && !trimmed.startsWith('\t')) {
+      inRoutesSection = false;
+      continue;
+    }
+
+    if (inRoutesSection) {
+      // Check for route definition
+      const routeMatch = line.match(/^(\s{2}|\t)"?([^"]+)"?:/);
+      if (routeMatch) {
+        currentRoute = routeMatch[2];
+        result.routes[currentRoute] = {};
+        continue;
+      }
+
+      // Check for properties inside route
+      if (currentRoute) {
+        const propMatch = line.match(/^\s{4}(price|description):\s*["']?([^"']+)["']?/);
+        if (propMatch) {
+          const key = propMatch[1];
+          const val = propMatch[2];
+          result.routes[currentRoute][key] = val;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+try {
+  console.log('📖 Standalone Test: Generating OpenAPI specification for Agent Marketplace...');
+  
+  const yamlPath = path.resolve(process.cwd(), 'paygate.config.yaml');
+  if (!fs.existsSync(yamlPath)) {
+    throw new Error('paygate.config.yaml not found in root folder!');
+  }
+
+  const config = parseSimpleYaml(yamlPath);
+  
+  const openapi: any = {
+    openapi: '3.0.0',
+    info: {
+      title: 'Agent Services API',
+      version: '1.0.0',
+      description: 'API monetized via PayGate x402 nanopayments.'
+    },
+    servers: [
+      {
+        url: 'https://your-domain.com',
+        description: 'Production Server'
+      }
+    ],
+    paths: {},
+    components: {
+      securitySchemes: {
+        'x402-payment': {
+          type: 'apiKey',
+          in: 'header',
+          name: 'Authorization',
+          description: 'Circle Gateway x402 payment authorization'
+        }
+      }
+    }
+  };
+
+  for (const [route, routeConfig] of Object.entries(config.routes)) {
+    const openApiPath = route.replace(/\*/g, '{proxy+}');
+    const routeObj: any = routeConfig;
+    
+    const priceStr = routeObj.price || 'Unknown';
+    const description = routeObj.description || `Access the ${route} resource.`;
+
+    openapi.paths[openApiPath] = {
+      get: {
+        summary: `Access ${route}`,
+        description: `${description} \n\n**Price:** ${priceStr} USDC`,
+        security: [
+          { 'x402-payment': [] }
+        ],
+        responses: {
+          '200': {
+            description: 'Successful response'
+          },
+          '402': {
+            description: 'Payment Required - Trigger x402 payment flow'
+          }
+        }
+      }
+    };
+  }
+
+  const outPath = path.resolve(process.cwd(), 'openapi.json');
+  fs.writeFileSync(outPath, JSON.stringify(openapi, null, 2));
+
+  console.log(`\n✅ Generated openapi.json successfully in: ${outPath}`);
+  console.log('Check the root folder to view the output!');
+} catch (err: any) {
+  console.error('❌ Failed to generate OpenAPI spec:', err.message);
+}
