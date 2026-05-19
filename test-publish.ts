@@ -49,9 +49,15 @@ function parseSimpleYaml(filePath: string): any {
 try {
   console.log('📖 Standalone Test: Generating OpenAPI specification for Agent Marketplace...');
   
-  const yamlPath = path.resolve(process.cwd(), 'paygate.config.yaml');
+  let yamlPath = path.resolve(process.cwd(), 'paygate.config.yaml');
   if (!fs.existsSync(yamlPath)) {
-    throw new Error('paygate.config.yaml not found in root folder!');
+    // Check fallback
+    const fallbackPath = path.resolve(process.cwd(), 'examples/express-basic/paygate.config.yaml');
+    if (fs.existsSync(fallbackPath)) {
+      yamlPath = fallbackPath;
+    } else {
+      throw new Error('paygate.config.yaml not found in root folder or examples/express-basic/!');
+    }
   }
 
   const config = parseSimpleYaml(yamlPath);
